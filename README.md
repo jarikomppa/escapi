@@ -1,29 +1,29 @@
-#ESCAPI
+# ESCAPI
 Extremely Simple Capture API
 
 Copyright (c)2015 Jari Komppa
 http://iki.fi/sol
 
-Binaries
---------
+## Binaries
+
 Binaries available at http://iki.fi/sol/zip/escapi3.zip
 
-Usage
------
+## Usage
+
 Add escapi.cpp to your project. This file contains code 
 to load the escapi.dll. See the samples ('simplest' recommended)
 for API usage.
 
-License
--------
+## License
+
 ESCAPI is released under the unlicense. In short, use for any purpose 
 as long as you don't hold me responsible for anything. It would be 
 nice if you'd toss me a mail if you play with this thing.
 
 Some examples use external libraries with different licenses.
 
-What is ESCAPI?
----------------
+## What is ESCAPI?
+
 A fairly easy to use webcam (or other video input device) capture 
 API.
 
@@ -40,8 +40,8 @@ with camera properties, new examples, automatic camera resolution
 selection, 64 bit builds, and source release. Version 3.0 onwards
 requires windows vista or later (7, 8, 8.1, 10..).
 
-Motivation
-----------
+## Motivation
+
 One of the last things that I added to 'textmedia' was webcam support.
 I got interested in webcams for a while, thinking I might whip up
 some kind of "eye toy"-ish game using a web cam. 
@@ -54,26 +54,13 @@ while not giving you much control.
 So, to get rid of the directmedia SDK requirement, I split the required
 code into a separate DLL, and now I present to you the ESCAPI:
 
-- setupESCAPI
-  Initialize the whole library. (in escapi.cpp)
-
-- countCaptureDevices
-  Request number of capture devices available.
-  
-- getCaptureDeviceName
-  Request the printable name of a capture device.
-  
-- initCapture
-  Tries to open the video capture device. Returns 0 on failure, 1 on success.
-  
-- doCapture 
-  Requests a video frame to be captured.
-  
-- isCaptureDone 
-  Returns 1 when the requested frame has been captured.
-
-- deinitCapture 
-  Closes the video capture device.
+- setupESCAPI - Initialize the whole library. (in escapi.cpp)
+- countCaptureDevices - Request number of capture devices available.
+- getCaptureDeviceName - Request the printable name of a capture device.
+- initCapture - Tries to open the video capture device. Returns 0 on failure, 1 on success.
+- doCapture - Requests a video frame to be captured.
+- isCaptureDone - Returns 1 when the requested frame has been captured.
+- deinitCapture - Closes the video capture device.
   
 So basically, you call setup to initialize the library,
 call init to start the capture device, and call doCapture to 
@@ -88,8 +75,8 @@ contrast trickery and other stuff like that which won't be quite game-friendly.
 
 Thus, I never ended up doing that "eye toy"-like game. Maybe one day =)
 
-Dependencies
-------------
+## Dependencies
+
 Some of the examples use external libraries:
 
 - SDL2, under zlib/libpng license, http://libsdl.org
