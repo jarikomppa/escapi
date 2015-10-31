@@ -16,9 +16,21 @@ struct SimpleCapParams gParams[MAXDEVICES];
 CaptureClass *gDevice[MAXDEVICES] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 int gDoCapture[MAXDEVICES];
 
-
+void CleanupDevice(int aDevice)
+{
+	if (gDevice[aDevice])
+	{
+		gDevice[aDevice]->deinitCapture();
+		delete gDevice[aDevice];
+		gDevice[aDevice] = 0;
+	}
+}
 HRESULT InitDevice(int aDevice)
 {
+	if (gDevice[aDevice])
+	{
+		CleanupDevice(aDevice);
+	}
 	gDevice[aDevice] = new CaptureClass;
 	HRESULT hr = gDevice[aDevice]->initCapture(aDevice);
 	if (FAILED(hr))
@@ -29,15 +41,7 @@ HRESULT InitDevice(int aDevice)
 	return hr;
 }
 
-void CleanupDevice(int aDevice)
-{
-	if (gDevice[aDevice])
-	{
-		gDevice[aDevice]->deinitCapture();
-		delete gDevice[aDevice];
-		gDevice[aDevice] = 0;
-	}
-}
+
 
 int CountCaptureDevices()
 {
@@ -138,7 +142,12 @@ void CheckForFail(int aDevice)
 	{
 		gDevice[aDevice]->mRedoFromStart = 0;
 		gDevice[aDevice]->deinitCapture();
-		gDevice[aDevice]->initCapture(aDevice);
+		HRESULT hr = gDevice[aDevice]->initCapture(aDevice);
+		if (FAILED(hr))
+		{
+			delete gDevice[aDevice];
+			gDevice[aDevice] = 0;
+		}
 	}
 }
 
@@ -160,9 +169,9 @@ int GetErrorLine(int aDevice)
 
 float GetProperty(int aDevice, int aProp)
 {
+	CheckForFail(aDevice);
 	if (!gDevice[aDevice])
 		return 0;
-	CheckForFail(aDevice);
 	float val;
 	int autoval;
 	gDevice[aDevice]->getProperty(aProp, val, autoval);
@@ -171,9 +180,9 @@ float GetProperty(int aDevice, int aProp)
 
 int GetPropertyAuto(int aDevice, int aProp)
 {
+	CheckForFail(aDevice);
 	if (!gDevice[aDevice])
 		return 0;
-	CheckForFail(aDevice);
 	float val;
 	int autoval;
 	gDevice[aDevice]->getProperty(aProp, val, autoval);
@@ -182,8 +191,8 @@ int GetPropertyAuto(int aDevice, int aProp)
 
 int SetProperty(int aDevice, int aProp, float aValue, int aAutoval)
 {
+	CheckForFail(aDevice);
 	if (!gDevice[aDevice])
 		return 0;
-	CheckForFail(aDevice);
 	return gDevice[aDevice]->setProperty(aProp, aValue, aAutoval);
 }

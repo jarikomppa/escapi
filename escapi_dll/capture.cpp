@@ -585,7 +585,7 @@ HRESULT CaptureClass::initCapture(int aDevice)
 
 	DO_OR_DIE;
 
-	if (param.mCount > 0)
+	if ((signed)param.mCount > aDevice)
 	{
 		// use param.ppDevices[0]
 		IMFAttributes   *attributes = NULL;
@@ -659,6 +659,10 @@ HRESULT CaptureClass::initCapture(int aDevice)
 		DO_OR_DIE_CRITSECTION;
 
 		LeaveCriticalSection(&mCritsec);
+	}
+	else
+	{
+		return MF_E_INVALIDINDEX;
 	}
 
 	/*
