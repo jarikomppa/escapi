@@ -22,7 +22,7 @@ pub struct Cameras {
     countCaptureDevices: extern fn() -> libc::c_int,
     initCapture: extern fn(DeviceNo, *const SimpleCapParams) -> libc::c_int,
     deinitCapture: extern fn(DeviceNo),
-    doCapture: extern fn(DeviceNo),
+    doCapture: extern fn(DeviceNo) -> libc::c_int,
     isCaptureDone: extern fn(DeviceNo) -> libc::c_int,
     getCaptureDeviceName: extern fn(DeviceNo, *mut libc::c_char, libc::c_int),
     ESCAPIVersion: extern fn() -> libc::c_uint,
