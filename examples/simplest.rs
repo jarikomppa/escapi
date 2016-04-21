@@ -22,42 +22,24 @@ fn main() {
      *
      * 0 is the first device.
      */
-    let mut camera = escapi.init(0, W, H).unwrap();
+    let mut camera = escapi.init(0, W, H, 10).unwrap();
 
     println!("capture initialized");
-
-    /* Go through 10 capture loops so that the camera has
-     * had time to adjust to the lighting conditions and
-     * should give us a sane image..
-     */
-    for i in 0..10 {
-        println!("request a capture: {}", i);
-        /* request a capture */
-        let capture = camera.do_capture();
-        println!("waiting for capture");
-
-        while !capture.done() {
-            std::thread::sleep(std::time::Duration::from_millis(1));
-            /* Wait until capture is done.
-             * Warning: if capture init failed, or if the capture
-             * simply fails (i.e, user unplugs the web camera), this
-             * will be an infinite loop.
-             */
-        }
-        println!("capture successful");
-    }
-    println!("code: {}", camera.error_code());
-    println!("line: {}", camera.error_line());
 
     /* now we have the data.. what shall we do with it? let's
      * render it in ASCII.. (using 3 top bits of green as the value)
      */
-    let light = b" .,-o+O0@";
-    for i in 0..H {
-        for j in 0..W {
-            let idx = camera.pixels()[(i*W+j) as usize] as isize;
-            let idx = (idx >> 13) & 7;
-            print!("{}", light[idx as usize] as char);
+    for _ in 0..100 {
+        let pixels = camera.capture(50).unwrap();
+        let light = b" .,-o+O0@";
+        for i in 0..H {
+            for j in 0..W {
+                let idx = i*W + j;
+                let val = pixels[(idx * 4) as usize];
+                let val = val / 26;
+                print!("{}", (val + b'0') as char);
+            }
+            print!("\n");
         }
         println!("");
     }

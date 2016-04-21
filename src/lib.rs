@@ -37,6 +37,9 @@ pub struct Cameras {
     capdll: winapi::HMODULE,
 }
 
+unsafe impl Sync for Cameras {}
+unsafe impl Send for Cameras {}
+
 impl Drop for Cameras {
     fn drop(&mut self) {
         unsafe {
@@ -45,28 +48,17 @@ impl Drop for Cameras {
     }
 }
 
-pub struct Capture<'a, 'b: 'a> {
-    device: &'a Device<'b>,
-}
-
-impl<'a, 'b> Capture<'a, 'b> {
-    pub fn done(&self) -> bool {
-        (self.device.cameras.isCaptureDone)(self.device.device_no) == 1
-    }
-}
-
-impl<'a, 'b> Drop for Capture<'a, 'b> {
-    fn drop(&mut self) {
-        assert!(self.done(), "don't drop Capture objects before the capture is done");
-    }
-}
-
 impl<'a> Device<'a> {
-    pub fn do_capture<'b>(&'b mut self) -> Capture<'b, 'a> {
+    pub fn capture(&mut self, timeout: u32) -> Result<&[u8], Error> {
         (self.cameras.doCapture)(self.device_no);
-        Capture {
-            device: self
+        for _ in 0..(timeout / 5) {
+            std::thread::sleep(std::time::Duration::from_millis(5));
+            if (self.cameras.isCaptureDone)(self.device_no) == 1 {
+                let pixels = self.pixels();
+                return Ok(unsafe { std::slice::from_raw_parts(pixels.as_ptr() as *const u8, pixels.len() * 4) } );
+            }
         }
+        Err(CaptureTimeout)
     }
     pub fn name(&self) -> String {
         let mut v = vec![0u8; 100];
@@ -81,15 +73,20 @@ impl<'a> Device<'a> {
     pub fn error_line(&self) -> i32 {
         (self.cameras.getCaptureErrorLine)(self.device_no)
     }
-    pub fn pixels(&mut self) -> &[i32] {
+    fn pixels(&mut self) -> &[i32] {
         &self.buf
+    }
+    pub fn width(&self) -> u32 {
+        self.params.width
+    }
+    pub fn height(&self) -> u32 {
+        self.params.height
     }
 }
 
 pub struct Device<'a> {
     device_no: DeviceNo,
     buf: Box<[i32]>,
-    #[allow(dead_code)]
     params: Box<SimpleCapParams>,
     cameras: &'a Cameras,
 }
@@ -107,7 +104,7 @@ impl Cameras {
     pub fn version(&self) -> u32 {
         (self.ESCAPIVersion)()
     }
-    pub fn init(&self, index: u32, wdt: u32, hgt: u32) -> Result<Device, Error> {
+    pub fn init(&self, index: u32, wdt: u32, hgt: u32, timeout: u32) -> Result<Device, Error> {
         let mut data = vec![0; (wdt*hgt) as usize].into_boxed_slice();
         let params = Box::new(SimpleCapParams {
             width: wdt,
@@ -115,12 +112,22 @@ impl Cameras {
             buf: data.as_mut_ptr(),
         });
         if (self.initCapture)(DeviceNo(index), &*params) == 1 {
-            Ok(Device {
+            let device = Device {
                 device_no: DeviceNo(index),
                 cameras: &self,
                 buf: data,
                 params: params,
-            })
+            };
+            assert!(device.error_code() == 0);
+            (device.cameras.doCapture)(device.device_no);
+            for _ in 0..(timeout * 100) {
+                assert!(device.error_code() == 0);
+                std::thread::sleep(std::time::Duration::from_millis(10));
+                if (device.cameras.isCaptureDone)(device.device_no) == 1 {
+                    return Ok(device);
+                }
+            }
+            Err(OpenTimeout)
         } else {
             Err(CouldNotOpenDevice(unsafe { GetLastError() }))
         }
@@ -131,6 +138,30 @@ impl Cameras {
 pub enum Error {
     CouldNotLoadEscapiDLL(libc::c_ulong),
     CouldNotOpenDevice(libc::c_ulong),
+    CaptureTimeout,
+    OpenTimeout,
+}
+
+impl std::fmt::Display for Error {
+    fn fmt(&self, fmt: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match *self {
+            CouldNotLoadEscapiDLL(i) => write!(fmt,"could not load escapi.dll, errorcode: {}", i),
+            CouldNotOpenDevice(i) => write!(fmt, "could not open camera device, errorcode: {}", i),
+            CaptureTimeout => write!(fmt, "timeout during image capture"),
+            OpenTimeout => write!(fmt, "timeout during camera connection"),
+        }
+    }
+}
+
+impl std::error::Error for Error {
+    fn description(&self) -> &str {
+        match *self {
+            CouldNotLoadEscapiDLL(_) => "could not load escapi.dll",
+            CouldNotOpenDevice(_) => "could not open camera device",
+            CaptureTimeout => "timeout during image capture",
+            OpenTimeout => "timeout during camera connection",
+        }
+    }
 }
 
 use self::Error::*;
