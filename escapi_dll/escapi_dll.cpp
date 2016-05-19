@@ -62,7 +62,7 @@ extern "C" int __declspec(dllexport) initCapture(unsigned int deviceno, struct S
 {
 	if (deviceno > MAXDEVICES)
 		return 0;
-	if (aParams == NULL || aParams->mHeight <= 0 || aParams->mWidth <= 0)
+	if (aParams == NULL || aParams->mHeight <= 0 || aParams->mWidth <= 0 || aParams->mTargetBuf == 0)
 		return 0;
 	gDoCapture[deviceno] = 0;
 	gParams[deviceno] = *aParams;
@@ -135,7 +135,7 @@ extern "C" int __declspec(dllexport) initCaptureWithOptions(unsigned int devicen
 {
 	if (deviceno > MAXDEVICES)
 		return 0;
-	if (aParams == NULL || aParams->mHeight <= 0 || aParams->mWidth <= 0)
+	if (aParams == NULL || aParams->mHeight <= 0 || aParams->mWidth <= 0 || aParams->mTargetBuf == 0)
 		return 0;
 	if ((aOptions & CAPTURE_OPTIONS_MASK) != aOptions)
 		return 0;

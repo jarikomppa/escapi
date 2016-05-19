@@ -97,8 +97,10 @@ typedef int (*getCaptureErrorCodeProc)(unsigned int deviceno);
 typedef int (*initCaptureWithOptionsProc)(unsigned int deviceno, struct SimpleCapParams *aParams, unsigned int aOptions);
 
 // Options accepted by above:
-#define CAPTURE_OPTION_RAWDATA 1 // return raw data instead of converted rgb
-#define CAPTURE_OPTIONS_MASK (CAPTURE_OPTION_RAWDATA) // mask to check for valid options - OR all options together here
+// Return raw data instead of converted rgb. Using this option assumes you know what you're doing.
+#define CAPTURE_OPTION_RAWDATA 1 
+// Mask to check for valid options - all options OR:ed together.
+#define CAPTURE_OPTIONS_MASK (CAPTURE_OPTION_RAWDATA) 
 
 
 #ifndef ESCAPI_DEFINITIONS_ONLY

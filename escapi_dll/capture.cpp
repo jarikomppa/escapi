@@ -152,6 +152,11 @@ STDMETHODIMP CaptureClass::OnReadSample(
 						BYTE *scanline0 = NULL;
 						LONG stride = 0;
 						hr = buffer.LockBuffer(mDefaultStride, mCaptureBufferHeight, &scanline0, &stride);
+						if (stride < 0)
+						{
+							scanline0 += stride * mCaptureBufferHeight;
+							stride = -stride;
+						}
 						LONG bytes = stride * mCaptureBufferHeight;
 						CopyMemory(mCaptureBuffer, scanline0, bytes);
 					}
