@@ -7,6 +7,7 @@
 
 extern struct SimpleCapParams gParams[];
 extern int gDoCapture[];
+extern int gOptions[];
 
 extern HRESULT InitDevice(int device);
 extern void CleanupDevice(int device);
@@ -43,7 +44,7 @@ extern "C" int __declspec(dllexport) ESCAPIDLLVersion()
 
 extern "C" int __declspec(dllexport) ESCAPIVersion()
 {
-	return 0x300; // ...and let's hope this one works better
+	return 0x301; // ...and let's hope this one works better
 }
 
 extern "C" int __declspec(dllexport) countCaptureDevices()
@@ -61,8 +62,11 @@ extern "C" int __declspec(dllexport) initCapture(unsigned int deviceno, struct S
 {
 	if (deviceno > MAXDEVICES)
 		return 0;
+	if (aParams == NULL || aParams->mHeight <= 0 || aParams->mWidth <= 0)
+		return 0;
 	gDoCapture[deviceno] = 0;
 	gParams[deviceno] = *aParams;
+	gOptions[deviceno] = 0;
 	if (FAILED(InitDevice(deviceno))) return 0;
 	return 1;
 }
@@ -127,4 +131,18 @@ extern "C" int __declspec(dllexport) setCaptureProperty(unsigned int deviceno, i
 	return SetProperty(deviceno, prop, value, autoval);
 }
 
+extern "C" int __declspec(dllexport) initCaptureWithOptions(unsigned int deviceno, struct SimpleCapParams *aParams, unsigned int aOptions)
+{
+	if (deviceno > MAXDEVICES)
+		return 0;
+	if (aParams == NULL || aParams->mHeight <= 0 || aParams->mWidth <= 0)
+		return 0;
+	if ((aOptions & CAPTURE_OPTIONS_MASK) != aOptions)
+		return 0;
+	gDoCapture[deviceno] = 0;
+	gParams[deviceno] = *aParams;
+	gOptions[deviceno] = aOptions;
+	if (FAILED(InitDevice(deviceno))) return 0;
+	return 1;
+}
 

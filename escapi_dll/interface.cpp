@@ -15,6 +15,8 @@
 struct SimpleCapParams gParams[MAXDEVICES];
 CaptureClass *gDevice[MAXDEVICES] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 int gDoCapture[MAXDEVICES];
+int gOptions[MAXDEVICES];
+
 
 void CleanupDevice(int aDevice)
 {

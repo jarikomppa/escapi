@@ -92,7 +92,13 @@ typedef int (*getCaptureErrorLineProc)(unsigned int deviceno);
 /* Return HRESULT of the catastrophic error, or 0 if none. */
 typedef int (*getCaptureErrorCodeProc)(unsigned int deviceno);
 
+/* initCaptureWithOptions allows additional options to be given. Otherwise it's identical with initCapture
+*/
+typedef int (*initCaptureWithOptionsProc)(unsigned int deviceno, struct SimpleCapParams *aParams, unsigned int aOptions);
 
+// Options accepted by above:
+#define CAPTURE_OPTION_RAWDATA 1 // return raw data instead of converted rgb
+#define CAPTURE_OPTIONS_MASK (CAPTURE_OPTION_RAWDATA) // mask to check for valid options - OR all options together here
 
 
 #ifndef ESCAPI_DEFINITIONS_ONLY
@@ -108,4 +114,5 @@ extern getCapturePropertyAutoProc getCapturePropertyAuto;
 extern setCapturePropertyProc setCaptureProperty;
 extern getCaptureErrorLineProc getCaptureErrorLine;
 extern getCaptureErrorCodeProc getCaptureErrorCode;
+extern initCaptureWithOptionsProc initCaptureWithOptions;
 #endif

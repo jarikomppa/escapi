@@ -13,6 +13,7 @@ getCapturePropertyAutoProc getCapturePropertyAuto;
 setCapturePropertyProc setCaptureProperty;
 getCaptureErrorLineProc getCaptureErrorLine;
 getCaptureErrorCodeProc getCaptureErrorCode;
+initCaptureWithOptionsProc initCaptureWithOptions;
 
 
 /* Internal: initialize COM */
@@ -40,6 +41,7 @@ int setupESCAPI()
   setCaptureProperty = (setCapturePropertyProc)GetProcAddress(capdll, "setCaptureProperty");
   getCaptureErrorLine = (getCaptureErrorLineProc)GetProcAddress(capdll, "getCaptureErrorLine");
   getCaptureErrorCode = (getCaptureErrorCodeProc)GetProcAddress(capdll, "getCaptureErrorCode");
+  initCaptureWithOptions = (initCaptureWithOptionsProc)GetProcAddress(capdll, "initCaptureWithOptions");
 
 
   /* Check that we got all the entry points */
@@ -55,11 +57,12 @@ int setupESCAPI()
 	  getCapturePropertyAuto == NULL ||
 	  setCaptureProperty == NULL ||
 	  getCaptureErrorLine == NULL ||
-	  getCaptureErrorCode == NULL)
+	  getCaptureErrorCode == NULL ||
+	  initCaptureWithOptions == NULL)
       return 0;
 
   /* Verify DLL version is at least what we want */
-  if (ESCAPIVersion() < 0x300)
+  if (ESCAPIVersion() < 0x301)
     return 0;
 
   /* Initialize COM.. */

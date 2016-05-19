@@ -20,6 +20,7 @@
 
 extern struct SimpleCapParams gParams[];
 extern int gDoCapture[];
+extern int gOptions[];
 
 #define DO_OR_DIE { if (mErrorLine) return hr; if (!SUCCEEDED(hr)) { mErrorLine = __LINE__; mErrorCode = hr; return hr; } }
 #define DO_OR_DIE_CRITSECTION { if (mErrorLine) { LeaveCriticalSection(&mCritsec); return hr;} if (!SUCCEEDED(hr)) { LeaveCriticalSection(&mCritsec); mErrorLine = __LINE__; mErrorCode = hr; return hr; } }
@@ -139,6 +140,21 @@ STDMETHODIMP CaptureClass::OnReadSample(
 						mCaptureBufferWidth,
 						mCaptureBufferHeight
 						);
+				}
+				else
+				{
+					// No convert function?
+					if (gOptions[mWhoAmI] & CAPTURE_OPTION_RAWDATA)
+					{
+						// Ah ok, raw data was requested, so let's copy it then.
+
+						VideoBufferLock buffer(mediabuffer);    // Helper object to lock the video buffer.
+						BYTE *scanline0 = NULL;
+						LONG stride = 0;
+						hr = buffer.LockBuffer(mDefaultStride, mCaptureBufferHeight, &scanline0, &stride);
+						LONG bytes = stride * mCaptureBufferHeight;
+						CopyMemory(mCaptureBuffer, scanline0, bytes);
+					}
 				}
 
 				int i, j;
@@ -381,6 +397,10 @@ HRESULT CaptureClass::getFormat(DWORD aIndex, GUID *aSubtype) const
 HRESULT CaptureClass::setConversionFunction(REFGUID aSubtype)
 {
 	mConvertFn = NULL;
+
+	// If raw data is desired, skip conversion
+	if (gOptions[mWhoAmI] & CAPTURE_OPTION_RAWDATA)
+		return S_OK; 
 
 	for (DWORD i = 0; i < gConversionFormats; i++)
 	{
