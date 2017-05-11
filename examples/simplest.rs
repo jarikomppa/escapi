@@ -1,47 +1,40 @@
 extern crate escapi;
-use escapi::*;
+extern crate image;
 
 /* "simplest", example of simply enumerating the available devices with ESCAPI */
 
 fn main() {
-    /* Initialize ESCAPI */
-    let escapi = init().unwrap();
-
-    println!("devices: {}", escapi.num_devices());
+    println!("devices: {}", escapi::num_devices());
 
     /* Set up capture parameters.
     * ESCAPI will scale the data received from the camera
     * (with point sampling) to whatever values you want.
     * Typically the native resolution is 320*240.
     */
-    const W: u32 = 32;
-    const H: u32 = 24;
+    const W: u32 = 320;
+    const H: u32 = 240;
 
-    /* Initialize capture - only one capture may be active per device,
-     * but several devices may be captured at the same time.
-     *
-     * 0 is the first device.
-     */
-    let mut camera = escapi.init(0, W, H, 10).unwrap();
+    let mut camera = escapi::init(0, W, H, 15).expect("Could not initialize the camera");
+    println!("capture initialized, device name: {}", camera.name());
 
-    println!("capture initialized");
+    for i in 0..15 {
+        println!("Frame #{}, captured and saved as image.png", i);
+        let (width, height) = (camera.capture_width(), camera.capture_height());
+        let pixels = camera.capture().expect("Could not capture an image");
 
-    /* now we have the data.. what shall we do with it? let's
-     * render it in ASCII.. (using 3 top bits of green as the value)
-     */
-    for _ in 0..100 {
-        let pixels = camera.capture(50).unwrap();
-        let light = b" .,-o+O0@";
-        for i in 0..H {
-            for j in 0..W {
-                let idx = i*W + j;
-                let val = pixels[(idx * 4) as usize];
-                let val = val / 26;
-                print!("{}", (val + b'0') as char);
-            }
-            print!("\n");
+        // Lets' convert it to RGB.
+        let mut buffer = vec![0; width as usize * height as usize * 3];
+        for i in 0..pixels.len() / 4 {
+            buffer[i * 3] = pixels[i * 4 + 2];
+            buffer[i * 3 + 1] = pixels[i * 4 + 1];
+            buffer[i * 3 + 2] = pixels[i * 4];
         }
-        println!("");
+
+        image::save_buffer("image.png",
+                           &buffer,
+                           width,
+                           height,
+                           image::ColorType::RGB(8)).expect("Could not save an image");
     }
 
     println!("shutting down");
