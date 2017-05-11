@@ -14,6 +14,14 @@ Add escapi.cpp to your project. This file contains code
 to load the escapi.dll. See the samples ('simplest' recommended)
 for API usage.
 
+## Rust Bindings Usage
+
+Just add the crate in your project and start using it. **NOTE**:
+make sure that Windows SDK and Media Foundation headers
+are accessible for your Rust toolchain, otherwise the library
+build will fail (i.e. it should work fine with MSVC toolchain
+and it might require some changes if you're using mingw toolchain).
+
 ## License
 
 ESCAPI is released under the unlicense. In short, use for any purpose 
