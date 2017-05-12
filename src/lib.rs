@@ -49,7 +49,7 @@ pub struct Device {
 }
 
 impl Device {
-    pub fn capture(&mut self) -> Result<&[u8], Error> {
+    pub fn capture(&self) -> Result<&[u8], Error> {
         unsafe { doCapture(self.device_idx) };
 
         const MAX_TRY_ATTEMPTS: usize = 10;
