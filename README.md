@@ -65,6 +65,7 @@ code into a separate DLL, and now I present to you the ESCAPI:
 - setupESCAPI - Initialize the whole library. (in escapi.cpp)
 - countCaptureDevices - Request number of capture devices available.
 - getCaptureDeviceName - Request the printable name of a capture device.
+- getCaptureDeviceUniqueName - Request the unique name of a capture device.
 - initCapture - Tries to open the video capture device. Returns 0 on failure, 1 on success.
 - doCapture - Requests a video frame to be captured.
 - isCaptureDone - Returns 1 when the requested frame has been captured.

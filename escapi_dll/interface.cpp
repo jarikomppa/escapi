@@ -76,7 +76,7 @@ int CountCaptureDevices()
 	return param.mCount;
 }
 
-void GetCaptureDeviceName(int aDevice, char * aNamebuffer, int aBufferlength)
+void GetCaptureName(int aDevice, char * aNamebuffer, int aBufferlength, REFGUID guidKey)
 {
 	int i;
 	if (!aNamebuffer || aBufferlength <= 0)
@@ -116,7 +116,7 @@ void GetCaptureDeviceName(int aDevice, char * aNamebuffer, int aBufferlength)
 		WCHAR *name = 0;
 		UINT32 namelen = 255;
 		hr = param.mDevices[aDevice]->GetAllocatedString(
-			MF_DEVSOURCE_ATTRIBUTE_FRIENDLY_NAME,
+			guidKey,
 			&name,
 			&namelen
 			);
@@ -133,6 +133,16 @@ void GetCaptureDeviceName(int aDevice, char * aNamebuffer, int aBufferlength)
 			CoTaskMemFree(name);
 		}
 	}
+}
+
+void GetCaptureDeviceName(int aDevice, char * aNamebuffer, int aBufferlength)
+{
+	GetCaptureName(aDevice, aNamebuffer, aBufferlength, MF_DEVSOURCE_ATTRIBUTE_FRIENDLY_NAME);
+}
+
+void GetCaptureDeviceSymbolicLink(int aDevice, char * aNamebuffer, int aBufferlength)
+{
+	GetCaptureName(aDevice, aNamebuffer, aBufferlength, MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_VIDCAP_SYMBOLIC_LINK);
 }
 
 void CheckForFail(int aDevice)

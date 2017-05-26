@@ -7,6 +7,7 @@ deinitCaptureProc deinitCapture;
 doCaptureProc doCapture;
 isCaptureDoneProc isCaptureDone;
 getCaptureDeviceNameProc getCaptureDeviceName;
+getCaptureDeviceUniqueNameProc getCaptureDeviceUniqueName;
 ESCAPIVersionProc ESCAPIVersion;
 getCapturePropertyValueProc getCapturePropertyValue;
 getCapturePropertyAutoProc getCapturePropertyAuto;
@@ -37,6 +38,7 @@ int setupESCAPI()
   isCaptureDone = (isCaptureDoneProc)GetProcAddress(capdll, "isCaptureDone");
   initCOM = (initCOMProc)GetProcAddress(capdll, "initCOM");
   getCaptureDeviceName = (getCaptureDeviceNameProc)GetProcAddress(capdll, "getCaptureDeviceName");
+  getCaptureDeviceUniqueName = (getCaptureDeviceUniqueNameProc)GetProcAddress(capdll, "getCaptureDeviceUniqueName");
   ESCAPIVersion = (ESCAPIVersionProc)GetProcAddress(capdll, "ESCAPIVersion");
   getCapturePropertyValue = (getCapturePropertyValueProc)GetProcAddress(capdll, "getCapturePropertyValue");
   getCapturePropertyAuto = (getCapturePropertyAutoProc)GetProcAddress(capdll, "getCapturePropertyAuto");
@@ -52,6 +54,7 @@ int setupESCAPI()
   if (initCOM == NULL ||
       ESCAPIVersion == NULL ||
       getCaptureDeviceName == NULL ||
+      getCaptureDeviceUniqueName == NULL ||
       countCaptureDevices == NULL ||
       initCapture == NULL ||
       deinitCapture == NULL ||
