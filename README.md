@@ -69,6 +69,8 @@ code into a separate DLL, and now I present to you the ESCAPI:
 - doCapture - Requests a video frame to be captured.
 - isCaptureDone - Returns 1 when the requested frame has been captured.
 - deinitCapture - Closes the video capture device.
+- registerForDeviceNotification - Start handle camera connect/disconnect and calling callback for this events.
+- unregisterForDeviceNotification - Stop handle camera connect/disconnect.
   
 So basically, you call setup to initialize the library,
 call init to start the capture device, and call doCapture to 
