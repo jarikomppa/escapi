@@ -2,6 +2,9 @@
 #define ESCAPI_DEFINITIONS_ONLY
 #include "escapi.h"
 
+#include <Dbt.h>
+#include <ks.h>
+#include <ksmedia.h>
 
 #define MAXDEVICES 16
 
@@ -19,6 +22,8 @@ extern int GetErrorLine(int device);
 extern float GetProperty(int device, int prop);
 extern int GetPropertyAuto(int device, int prop);
 extern int SetProperty(int device, int prop, float value, int autoval);
+extern void RegisterForDeviceNotification(const std::function<void(bool isArrival)>& callback);
+extern void UnregisterForDeviceNotification();
 
 BOOL APIENTRY DllMain(HANDLE hModule,
 	DWORD  ul_reason_for_call,
@@ -76,6 +81,16 @@ extern "C" void __declspec(dllexport) deinitCapture(unsigned int deviceno)
 	if (deviceno > MAXDEVICES)
 		return;
 	CleanupDevice(deviceno);
+}
+
+extern "C" void __declspec(dllexport) registerForDeviceNotification(std::function<void(bool isArrival)> callback)
+{
+	RegisterForDeviceNotification(callback);
+}
+
+extern "C" void __declspec(dllexport) unregisterForDeviceNotification()
+{
+	UnregisterForDeviceNotification();
 }
 
 extern "C" void __declspec(dllexport) doCapture(unsigned int deviceno)

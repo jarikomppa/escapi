@@ -1,4 +1,5 @@
 /* Extremely Simple Capture API */
+#include <functional>
 
 struct SimpleCapParams
 {
@@ -92,9 +93,13 @@ typedef int (*getCaptureErrorLineProc)(unsigned int deviceno);
 /* Return HRESULT of the catastrophic error, or 0 if none. */
 typedef int (*getCaptureErrorCodeProc)(unsigned int deviceno);
 
-/* initCaptureWithOptions allows additional options to be given. Otherwise it's identical with initCapture
-*/
+/* initCaptureWithOptions allows additional options to be given. Otherwise it's identical with initCapture */
 typedef int (*initCaptureWithOptionsProc)(unsigned int deviceno, struct SimpleCapParams *aParams, unsigned int aOptions);
+
+/* Start handle camera connect/disconnect and calling callback for this events. */
+typedef void(*registerForDeviceNotificationProc)(std::function<void(bool isArrival)> callback);
+/* Stop handle camera connect/disconnect. */
+typedef void(*unregisterForDeviceNotificationProc)();
 
 // Options accepted by above:
 // Return raw data instead of converted rgb. Using this option assumes you know what you're doing.
@@ -117,4 +122,6 @@ extern setCapturePropertyProc setCaptureProperty;
 extern getCaptureErrorLineProc getCaptureErrorLine;
 extern getCaptureErrorCodeProc getCaptureErrorCode;
 extern initCaptureWithOptionsProc initCaptureWithOptions;
+extern registerForDeviceNotificationProc registerForDeviceNotification;
+extern unregisterForDeviceNotificationProc unregisterForDeviceNotification;
 #endif

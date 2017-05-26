@@ -14,6 +14,8 @@ setCapturePropertyProc setCaptureProperty;
 getCaptureErrorLineProc getCaptureErrorLine;
 getCaptureErrorCodeProc getCaptureErrorCode;
 initCaptureWithOptionsProc initCaptureWithOptions;
+registerForDeviceNotificationProc registerForDeviceNotification;
+unregisterForDeviceNotificationProc unregisterForDeviceNotification;
 
 
 /* Internal: initialize COM */
@@ -42,6 +44,8 @@ int setupESCAPI()
   getCaptureErrorLine = (getCaptureErrorLineProc)GetProcAddress(capdll, "getCaptureErrorLine");
   getCaptureErrorCode = (getCaptureErrorCodeProc)GetProcAddress(capdll, "getCaptureErrorCode");
   initCaptureWithOptions = (initCaptureWithOptionsProc)GetProcAddress(capdll, "initCaptureWithOptions");
+  registerForDeviceNotification = (registerForDeviceNotificationProc)GetProcAddress(capdll, "registerForDeviceNotification");
+  unregisterForDeviceNotification = (unregisterForDeviceNotificationProc)GetProcAddress(capdll, "unregisterForDeviceNotification");
 
 
   /* Check that we got all the entry points */
@@ -58,7 +62,9 @@ int setupESCAPI()
 	  setCaptureProperty == NULL ||
 	  getCaptureErrorLine == NULL ||
 	  getCaptureErrorCode == NULL ||
-	  initCaptureWithOptions == NULL)
+	  initCaptureWithOptions == NULL ||
+	  registerForDeviceNotification == NULL ||
+	  unregisterForDeviceNotification == NULL)
       return 0;
 
   /* Verify DLL version is at least what we want */

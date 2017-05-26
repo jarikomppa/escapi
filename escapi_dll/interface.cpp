@@ -9,6 +9,7 @@
 #include "capture.h"
 #include "scopedrelease.h"
 #include "choosedeviceparam.h"
+#include "cameraeventshandler.h"
 
 #define MAXDEVICES 16
 
@@ -27,6 +28,7 @@ void CleanupDevice(int aDevice)
 		gDevice[aDevice] = 0;
 	}
 }
+
 HRESULT InitDevice(int aDevice)
 {
 	if (gDevice[aDevice])
@@ -42,8 +44,6 @@ HRESULT InitDevice(int aDevice)
 	}
 	return hr;
 }
-
-
 
 int CountCaptureDevices()
 {
@@ -197,4 +197,14 @@ int SetProperty(int aDevice, int aProp, float aValue, int aAutoval)
 	if (!gDevice[aDevice])
 		return 0;
 	return gDevice[aDevice]->setProperty(aProp, aValue, aAutoval);
+}
+
+void RegisterForDeviceNotification(const std::function<void(bool isArrival)>& callback)
+{
+	RegisterForDeviceNotificationFromInterface(callback);
+}
+
+void UnregisterForDeviceNotification()
+{
+	UnregisterForDeviceNotificationFromInterface();
 }
