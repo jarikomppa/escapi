@@ -97,8 +97,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 void RegisterForDeviceNotificationFromInterface(const std::function<void(bool isArrival)>& callback)
 {
 	gCallback = callback;
-
-	HANDLE procHandle = GetCurrentProcess();
 	gIsWorking = true;
 	gMsgLoop = std::thread(&CreateMessageOnlyWindow);
 }
