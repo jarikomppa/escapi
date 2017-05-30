@@ -7,6 +7,7 @@ deinitCaptureProc deinitCapture;
 doCaptureProc doCapture;
 isCaptureDoneProc isCaptureDone;
 getCaptureDeviceNameProc getCaptureDeviceName;
+getCaptureDeviceUniqueNameProc getCaptureDeviceUniqueName;
 ESCAPIVersionProc ESCAPIVersion;
 getCapturePropertyValueProc getCapturePropertyValue;
 getCapturePropertyAutoProc getCapturePropertyAuto;
@@ -14,6 +15,8 @@ setCapturePropertyProc setCaptureProperty;
 getCaptureErrorLineProc getCaptureErrorLine;
 getCaptureErrorCodeProc getCaptureErrorCode;
 initCaptureWithOptionsProc initCaptureWithOptions;
+registerForDeviceNotificationProc registerForDeviceNotification;
+unregisterForDeviceNotificationProc unregisterForDeviceNotification;
 
 
 /* Internal: initialize COM */
@@ -35,6 +38,7 @@ int setupESCAPI()
   isCaptureDone = (isCaptureDoneProc)GetProcAddress(capdll, "isCaptureDone");
   initCOM = (initCOMProc)GetProcAddress(capdll, "initCOM");
   getCaptureDeviceName = (getCaptureDeviceNameProc)GetProcAddress(capdll, "getCaptureDeviceName");
+  getCaptureDeviceUniqueName = (getCaptureDeviceUniqueNameProc)GetProcAddress(capdll, "getCaptureDeviceUniqueName");
   ESCAPIVersion = (ESCAPIVersionProc)GetProcAddress(capdll, "ESCAPIVersion");
   getCapturePropertyValue = (getCapturePropertyValueProc)GetProcAddress(capdll, "getCapturePropertyValue");
   getCapturePropertyAuto = (getCapturePropertyAutoProc)GetProcAddress(capdll, "getCapturePropertyAuto");
@@ -42,12 +46,15 @@ int setupESCAPI()
   getCaptureErrorLine = (getCaptureErrorLineProc)GetProcAddress(capdll, "getCaptureErrorLine");
   getCaptureErrorCode = (getCaptureErrorCodeProc)GetProcAddress(capdll, "getCaptureErrorCode");
   initCaptureWithOptions = (initCaptureWithOptionsProc)GetProcAddress(capdll, "initCaptureWithOptions");
+  registerForDeviceNotification = (registerForDeviceNotificationProc)GetProcAddress(capdll, "registerForDeviceNotification");
+  unregisterForDeviceNotification = (unregisterForDeviceNotificationProc)GetProcAddress(capdll, "unregisterForDeviceNotification");
 
 
   /* Check that we got all the entry points */
   if (initCOM == NULL ||
       ESCAPIVersion == NULL ||
       getCaptureDeviceName == NULL ||
+      getCaptureDeviceUniqueName == NULL ||
       countCaptureDevices == NULL ||
       initCapture == NULL ||
       deinitCapture == NULL ||
@@ -58,7 +65,9 @@ int setupESCAPI()
 	  setCaptureProperty == NULL ||
 	  getCaptureErrorLine == NULL ||
 	  getCaptureErrorCode == NULL ||
-	  initCaptureWithOptions == NULL)
+	  initCaptureWithOptions == NULL ||
+	  registerForDeviceNotification == NULL ||
+	  unregisterForDeviceNotification == NULL)
       return 0;
 
   /* Verify DLL version is at least what we want */

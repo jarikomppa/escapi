@@ -2,6 +2,9 @@
 #define ESCAPI_DEFINITIONS_ONLY
 #include "escapi.h"
 
+#include <Dbt.h>
+#include <ks.h>
+#include <ksmedia.h>
 
 #define MAXDEVICES 16
 
@@ -13,12 +16,15 @@ extern HRESULT InitDevice(int device);
 extern void CleanupDevice(int device);
 extern int CountCaptureDevices();
 extern void GetCaptureDeviceName(int deviceno, char * namebuffer, int bufferlength);
+extern void GetCaptureDeviceSymbolicLink(int deviceno, char * namebuffer, int bufferlength);
 extern void CheckForFail(int device);
 extern int GetErrorCode(int device);
 extern int GetErrorLine(int device);
 extern float GetProperty(int device, int prop);
 extern int GetPropertyAuto(int device, int prop);
 extern int SetProperty(int device, int prop, float value, int autoval);
+extern void RegisterForDeviceNotification(const std::function<void(bool isArrival)>& callback);
+extern void UnregisterForDeviceNotification();
 
 BOOL APIENTRY DllMain(HANDLE hModule,
 	DWORD  ul_reason_for_call,
@@ -35,6 +41,14 @@ extern "C" void __declspec(dllexport) getCaptureDeviceName(unsigned int deviceno
 		return;
 
 	GetCaptureDeviceName(deviceno, namebuffer, bufferlength);
+}
+
+extern "C" void __declspec(dllexport) getCaptureDeviceUniqueName(unsigned int deviceno, char *namebuffer, int bufferlength)
+{
+	if (deviceno > MAXDEVICES)
+		return;
+
+	GetCaptureDeviceSymbolicLink(deviceno, namebuffer, bufferlength);
 }
 
 extern "C" int __declspec(dllexport) ESCAPIDLLVersion()
@@ -76,6 +90,16 @@ extern "C" void __declspec(dllexport) deinitCapture(unsigned int deviceno)
 	if (deviceno > MAXDEVICES)
 		return;
 	CleanupDevice(deviceno);
+}
+
+extern "C" void __declspec(dllexport) registerForDeviceNotification(std::function<void(bool isArrival)> callback)
+{
+	RegisterForDeviceNotification(callback);
+}
+
+extern "C" void __declspec(dllexport) unregisterForDeviceNotification()
+{
+	UnregisterForDeviceNotification();
 }
 
 extern "C" void __declspec(dllexport) doCapture(unsigned int deviceno)

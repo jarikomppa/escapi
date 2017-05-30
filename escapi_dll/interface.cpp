@@ -9,6 +9,7 @@
 #include "capture.h"
 #include "scopedrelease.h"
 #include "choosedeviceparam.h"
+#include "cameraeventshandler.h"
 
 #define MAXDEVICES 16
 
@@ -27,6 +28,7 @@ void CleanupDevice(int aDevice)
 		gDevice[aDevice] = 0;
 	}
 }
+
 HRESULT InitDevice(int aDevice)
 {
 	if (gDevice[aDevice])
@@ -42,8 +44,6 @@ HRESULT InitDevice(int aDevice)
 	}
 	return hr;
 }
-
-
 
 int CountCaptureDevices()
 {
@@ -76,7 +76,7 @@ int CountCaptureDevices()
 	return param.mCount;
 }
 
-void GetCaptureDeviceName(int aDevice, char * aNamebuffer, int aBufferlength)
+void GetCaptureName(int aDevice, char * aNamebuffer, int aBufferlength, REFGUID guidKey)
 {
 	int i;
 	if (!aNamebuffer || aBufferlength <= 0)
@@ -116,7 +116,7 @@ void GetCaptureDeviceName(int aDevice, char * aNamebuffer, int aBufferlength)
 		WCHAR *name = 0;
 		UINT32 namelen = 255;
 		hr = param.mDevices[aDevice]->GetAllocatedString(
-			MF_DEVSOURCE_ATTRIBUTE_FRIENDLY_NAME,
+			guidKey,
 			&name,
 			&namelen
 			);
@@ -133,6 +133,16 @@ void GetCaptureDeviceName(int aDevice, char * aNamebuffer, int aBufferlength)
 			CoTaskMemFree(name);
 		}
 	}
+}
+
+void GetCaptureDeviceName(int aDevice, char * aNamebuffer, int aBufferlength)
+{
+	GetCaptureName(aDevice, aNamebuffer, aBufferlength, MF_DEVSOURCE_ATTRIBUTE_FRIENDLY_NAME);
+}
+
+void GetCaptureDeviceSymbolicLink(int aDevice, char * aNamebuffer, int aBufferlength)
+{
+	GetCaptureName(aDevice, aNamebuffer, aBufferlength, MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_VIDCAP_SYMBOLIC_LINK);
 }
 
 void CheckForFail(int aDevice)
@@ -197,4 +207,14 @@ int SetProperty(int aDevice, int aProp, float aValue, int aAutoval)
 	if (!gDevice[aDevice])
 		return 0;
 	return gDevice[aDevice]->setProperty(aProp, aValue, aAutoval);
+}
+
+void RegisterForDeviceNotification(const std::function<void(bool isArrival)>& callback)
+{
+	RegisterForDeviceNotificationFromInterface(callback);
+}
+
+void UnregisterForDeviceNotification()
+{
+	UnregisterForDeviceNotificationFromInterface();
 }
