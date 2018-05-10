@@ -515,7 +515,13 @@ int CaptureClass::isMediaOk(IMFMediaType *aType, int aIndex)
 				break;
 			}
 		}
+
+		if (found)
+		{
+			hr = setVideoType(aType);
+		}
 	}
+
 	return found;
 }
 
@@ -660,15 +666,21 @@ HRESULT CaptureClass::initCapture(int aDevice)
 
 		DO_OR_DIE_CRITSECTION;
 
-		hr = setVideoType(type);
+		//for default mjpg type , convert to other support type
+		if (isMediaOk(type, preferredmode))
+			hr = 0;
+		else
+			hr = -1;
+		
+		//hr = setVideoType(type);
+		//
+		//DO_OR_DIE_CRITSECTION;
 
-		DO_OR_DIE_CRITSECTION;
-
-		hr = mReader->SetCurrentMediaType(
-			(DWORD)MF_SOURCE_READER_FIRST_VIDEO_STREAM,
-			NULL,
-			type
-			);
+		//hr = mReader->SetCurrentMediaType(
+		//	(DWORD)MF_SOURCE_READER_FIRST_VIDEO_STREAM,
+		//	NULL,
+		//	type
+		//);
 
 		DO_OR_DIE_CRITSECTION;
 
