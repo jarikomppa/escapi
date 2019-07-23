@@ -10,6 +10,8 @@ struct SimpleCapParams {
     height: libc::c_uint,
 }
 
+unsafe impl Send for SimpleCapParams {}
+
 pub fn num_devices() -> usize {
     unsafe { countCaptureDevices() as usize }
 }
@@ -43,7 +45,7 @@ pub fn init(index: usize, wdt: u32, hgt: u32, desired_fps: u64) -> Result<Device
 /// The device requests BGRA format, so the frames are in BGRA.
 pub struct Device {
     device_idx: libc::c_uint,
-    buf: Box<[i32]>,
+    buf: Box<[libc::c_int]>,
     params: Box<SimpleCapParams>,
     desired_fps: u64,
 }
@@ -66,7 +68,7 @@ impl Device {
     }
     pub fn name(&self) -> String {
         let mut v = vec![0u8; 100];
-        unsafe { getCaptureDeviceName(self.device_idx, v.as_mut_ptr() as *mut i8, v.len() as i32) };
+        unsafe { getCaptureDeviceName(self.device_idx, v.as_mut_ptr() as *mut i8, v.len() as libc::c_int) };
         let null = v.iter().position(|&c| c == 0).expect("null termination character");
         v.truncate(null);
         String::from_utf8(v).expect("device name contains invalid utf8 characters")

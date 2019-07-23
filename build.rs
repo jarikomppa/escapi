@@ -1,9 +1,9 @@
 
-extern crate gcc;
+extern crate cc;
 
 fn main() {
     let path = std::env::current_dir().expect("Could not get the current dir");
-    gcc::Config::new()
+    cc::Build::new()
         .cpp(true)
         .pic(true)
         .include(path.join("escapi_dll"))
